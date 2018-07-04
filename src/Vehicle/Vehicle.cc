@@ -77,6 +77,8 @@ const char* Vehicle::_temperatureFactGroupName =    "temperature";
 const char* Vehicle::_clockFactGroupName =          "clock";
 const char* Vehicle::_distanceSensorFactGroupName = "distanceSensor";
 
+const char* Vehicle::_RT_INFOS_FactGroupName =    "RT_INFOS"; //VPY
+
 Vehicle::Vehicle(LinkInterface*             link,
                  int                        vehicleId,
                  int                        defaultComponentId,
@@ -192,6 +194,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _windFactGroup(this)
     , _vibrationFactGroup(this)
     , _temperatureFactGroup(this)
+    //, _RT_INFOS_FactGroup(this) //VPY
     , _clockFactGroup(this)
     , _distanceSensorFactGroup(this)
 {
@@ -449,6 +452,7 @@ void Vehicle::_commonInit(void)
     _addFactGroup(&_temperatureFactGroup,       _temperatureFactGroupName);
     _addFactGroup(&_clockFactGroup,             _clockFactGroupName);
     _addFactGroup(&_distanceSensorFactGroup,    _distanceSensorFactGroupName);
+    _addFactGroup(&_RT_INFOS_FactGroup,         _RT_INFOS_FactGroupName); //VPY
 
     // Add firmware-specific fact groups, if provided
     QMap<QString, FactGroup*>* fwFactGroups = _firmwarePlugin->factGroups();
@@ -691,7 +695,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         _handleVfrHud(message);
         break;
     case MAVLINK_MSG_ID_SCALED_PRESSURE:
-        _handleScaledPressure(message);
+        _handleScaledPressure(message); //VPY this is interesting => defining callbacks for mavlink messages ??
         break;
     case MAVLINK_MSG_ID_SCALED_PRESSURE2:
         _handleScaledPressure2(message);
@@ -722,8 +726,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         break;
     case MAVLINK_MSG_ID_PING:
         _handlePing(link, message);
-        break;
-
+        break;  
+    case MAVLINK_MSG_ID_DRA_RT_INFOS: //VPY
+        _handleDRA_RT_INFOS(message); //VPY
+        break;                        //VPY
     case MAVLINK_MSG_ID_SERIAL_CONTROL:
     {
         mavlink_serial_control_t ser;
@@ -1650,6 +1656,16 @@ void Vehicle::_handleScaledPressure3(mavlink_message_t& message) {
     mavlink_msg_scaled_pressure3_decode(&message, &pressure);
     _temperatureFactGroup.temperature3()->setRawValue(pressure.temperature / 100.0);
 }
+
+//VPY: all this method
+void Vehicle::_handleDRA_RT_INFOS(mavlink_message_t& message){
+    mavlink_dra_rt_infos_t rt_infos;
+    mavlink_msg_dra_rt_infos_decode(&message, &rt_infos);
+    _RT_INFOS_FactGroup.dva_val()->setRawValue(rt_infos.dra_val);
+    _RT_INFOS_FactGroup.marked()->setRawValue(rt_infos.marked);
+    //qDebug("_handleDRA_RT_INFOS() called!");
+}
+
 
 bool Vehicle::_containsLink(LinkInterface* link)
 {
@@ -3541,6 +3557,7 @@ VehicleTemperatureFactGroup::VehicleTemperatureFactGroup(QObject* parent)
     , _temperature1Fact    (0, _temperature1FactName,     FactMetaData::valueTypeDouble)
     , _temperature2Fact    (0, _temperature2FactName,     FactMetaData::valueTypeDouble)
     , _temperature3Fact    (0, _temperature3FactName,     FactMetaData::valueTypeDouble)
+
 {
     _addFact(&_temperature1Fact,       _temperature1FactName);
     _addFact(&_temperature2Fact,       _temperature2FactName);
@@ -3550,6 +3567,28 @@ VehicleTemperatureFactGroup::VehicleTemperatureFactGroup(QObject* parent)
     _temperature1Fact.setRawValue      (std::numeric_limits<float>::quiet_NaN());
     _temperature2Fact.setRawValue      (std::numeric_limits<float>::quiet_NaN());
     _temperature3Fact.setRawValue      (std::numeric_limits<float>::quiet_NaN());
+}
+
+// VPY
+const char* VehicleDRA_RT_INFOS_FactGroup::_dva_valFactName =      "dva_val";
+const char* VehicleDRA_RT_INFOS_FactGroup::_markedFactName =      "marked";
+
+
+// VPY
+VehicleDRA_RT_INFOS_FactGroup::VehicleDRA_RT_INFOS_FactGroup(QObject* parent)
+    : FactGroup(1000, ":/json/Vehicle/DRA_RT_INFOS_Fact.json", parent)
+    , _dva_valFact    (0, _dva_valFactName,     FactMetaData::valueTypeInt32)
+    , _markedFact    (0, _markedFactName,     FactMetaData::valueTypeInt8)
+
+{
+    qDebug("#1 we are here!!");
+    _addFact(&_dva_valFact,       _dva_valFactName);
+    _addFact(&_markedFact,       _markedFactName);
+
+
+    // Start out as not available "--.--"
+    _dva_valFact.setRawValue      (std::numeric_limits<float>::quiet_NaN());
+    _markedFact.setRawValue      (std::numeric_limits<float>::quiet_NaN());
 }
 
 const char* VehicleClockFactGroup::_currentTimeFactName = "currentTime";

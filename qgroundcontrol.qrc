@@ -241,6 +241,7 @@
         <file alias="Vehicle/SetpointFact.json">src/Vehicle/SetpointFact.json</file>
         <file alias="Vehicle/SubmarineFact.json">src/Vehicle/SubmarineFact.json</file>
         <file alias="Vehicle/TemperatureFact.json">src/Vehicle/TemperatureFact.json</file>
+        <file alias="Vehicle/DRA_RT_INFOS_Fact.json">src/Vehicle/DRA_RT_INFOS_Fact.json</file>
         <file alias="Vehicle/VehicleFact.json">src/Vehicle/VehicleFact.json</file>
         <file alias="Vehicle/VibrationFact.json">src/Vehicle/VibrationFact.json</file>
         <file alias="Vehicle/WindFact.json">src/Vehicle/WindFact.json</file>

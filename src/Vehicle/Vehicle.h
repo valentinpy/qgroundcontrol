@@ -329,6 +329,33 @@ private:
     Fact            _temperature3Fact;
 };
 
+//VPY the whole class
+class VehicleDRA_RT_INFOS_FactGroup : public FactGroup
+{
+    Q_OBJECT
+
+public:
+    VehicleDRA_RT_INFOS_FactGroup(QObject* parent = NULL);
+
+    Q_PROPERTY(Fact* dva_val      READ dva_val       CONSTANT)
+    Q_PROPERTY(Fact* marked       READ marked       CONSTANT)
+
+    Fact* dva_val (void) { return &_dva_valFact; }
+    Fact* marked (void) { return &_markedFact; }
+
+
+    static const char* _dva_valFactName;
+    static const char* _markedFactName;
+
+    static const char* _settingsGroup;
+
+    static const double _temperatureUnavailable;
+
+private:
+    Fact            _dva_valFact;
+    Fact            _markedFact;
+};
+
 class VehicleClockFactGroup : public FactGroup
 {
     Q_OBJECT
@@ -825,6 +852,8 @@ public:
     FactGroup* setpointFactGroup        (void) { return &_setpointFactGroup; }
     FactGroup* distanceSensorFactGroup  (void) { return &_distanceSensorFactGroup; }
 
+    FactGroup* RT_INFOSFactGroup     (void) { return &_RT_INFOS_FactGroup; } //VPY
+
     void setConnectionLostEnabled(bool connectionLostEnabled);
 
     ParameterManager* parameterManager(void) { return _parameterManager; }
@@ -1082,6 +1111,7 @@ private:
     void _handleScaledPressure(mavlink_message_t& message);
     void _handleScaledPressure2(mavlink_message_t& message);
     void _handleScaledPressure3(mavlink_message_t& message);
+    void _handleDRA_RT_INFOS(mavlink_message_t& message); //VPY
     void _handleHighLatency2(mavlink_message_t& message);
     void _handleAttitudeWorker(double rollRadians, double pitchRadians, double yawRadians);
     void _handleAttitude(mavlink_message_t& message);
@@ -1302,6 +1332,7 @@ private:
     VehicleClockFactGroup           _clockFactGroup;
     VehicleSetpointFactGroup        _setpointFactGroup;
     VehicleDistanceSensorFactGroup  _distanceSensorFactGroup;
+    VehicleDRA_RT_INFOS_FactGroup   _RT_INFOS_FactGroup; //VPY
 
     static const char* _rollFactName;
     static const char* _pitchFactName;
@@ -1327,6 +1358,8 @@ private:
     static const char* _temperatureFactGroupName;
     static const char* _clockFactGroupName;
     static const char* _distanceSensorFactGroupName;
+
+    static const char* _RT_INFOS_FactGroupName; //VPY
 
     static const int _vehicleUIUpdateRateMSecs = 100;
 

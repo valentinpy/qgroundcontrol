@@ -1,0 +1,14 @@
+[
+{
+    "name":             "dva_val",
+    "shortDescription": "dva receiver value",
+    "type":             "int32",
+    "units":            ""
+},
+{
+    "name":             "marked",
+    "shortDescription": "marked targets",
+    "type":             "int8",
+    "units":            ""
+}
+]
